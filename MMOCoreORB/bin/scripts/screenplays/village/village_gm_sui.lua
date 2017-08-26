@@ -259,7 +259,7 @@ function VillageGmSui.playerInfo(pPlayer, targetID)
 	promptBuf = promptBuf .. " \\#pcontrast1 " .. "Jedi State:" .. " \\#pcontrast2 " .. PlayerObject(pGhost):getJediState() .. "\n"
 	promptBuf = promptBuf .. " \\#pcontrast1 " .. "Progression:" .. " \\#pcontrast2 "
 
-	if (CreatureObject(pPlayer):hasSkill("force_title_jedi_rank_03")) then
+	if (CreatureObject(pTarget):hasSkill("force_title_jedi_rank_03")) then
 		promptBuf = promptBuf.. "Knight Trials Completed\n"
 	elseif (VillageJediManagerCommon.hasJediProgressionScreenPlayState(pTarget, VILLAGE_JEDI_PROGRESSION_COMPLETED_PADAWAN_TRIALS)) then
 		if (JediTrials:isOnKnightTrials(pTarget)) then
@@ -280,7 +280,7 @@ function VillageGmSui.playerInfo(pPlayer, targetID)
 
 		if (curStep == FsOutro.OLDMANWAIT) then
 			promptBuf = promptBuf .. "Outro (Waiting for Old Man)\n"
-			if (FsOutro:hasDelayPassed(pPlayer)) then
+			if (FsOutro:hasDelayPassed(pTarget)) then
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Has Delay Passed: \\#pcontrast2 YES \n"
 			else
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Has Delay Passed: \\#pcontrast2 NO \n"
@@ -291,7 +291,7 @@ function VillageGmSui.playerInfo(pPlayer, targetID)
 			if (not PlayerObject(pGhost):isOnline()) then
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time until visit:" .. " \\#pcontrast2 Player Offline\n"
 			elseif (timeTilVisit > 0) then
-				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time until visit:" .. " \\#pcontrast2 " .. VillageGmSui:getTimeString(timeTilVisit) .. "\n"
+				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time until visit:" .. " \\#pcontrast2 " .. VillageGmSui:getTimeString(timeTilVisit * 1000) .. "\n"
 			else
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time until visit:" .. " \\#pcontrast2 Soon\n"
 			end
@@ -305,7 +305,7 @@ function VillageGmSui.playerInfo(pPlayer, targetID)
 
 		if (curStep == FsIntro.OLDMANWAIT) then
 			promptBuf = promptBuf .. "Intro (Waiting for Old Man)\n"
-			if (FsIntro:hasDelayPassed(pPlayer)) then
+			if (FsIntro:hasDelayPassed(pTarget)) then
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Has Delay Passed: \\#pcontrast2 YES \n"
 			else
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Has Delay Passed: \\#pcontrast2 NO \n"
@@ -315,7 +315,7 @@ function VillageGmSui.playerInfo(pPlayer, targetID)
 			if (not PlayerObject(pGhost):isOnline()) then
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time until visit:" .. " \\#pcontrast2 Player Offline\n"
 			elseif (timeTilVisit > 0) then
-				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time until visit:" .. " \\#pcontrast2 " .. VillageGmSui:getTimeString(timeTilVisit) .. "\n"
+				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time until visit:" .. " \\#pcontrast2 " .. VillageGmSui:getTimeString(timeTilVisit * 1000) .. "\n"
 			else
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time until visit:" .. " \\#pcontrast2 Soon\n"
 			end
@@ -327,7 +327,7 @@ function VillageGmSui.playerInfo(pPlayer, targetID)
 			promptBuf = promptBuf .. "Intro (Old Man Visit)\n"
 		elseif (curStep == FsIntro.SITHWAIT) then
 			promptBuf = promptBuf .. "Intro (Waiting for Sith Attack)\n"
-			if (FsIntro:hasDelayPassed(pPlayer)) then
+			if (FsIntro:hasDelayPassed(pTarget)) then
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Has Delay Passed: \\#pcontrast2 YES \n"
 			else
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Has Delay Passed: \\#pcontrast2 NO \n"
@@ -337,7 +337,7 @@ function VillageGmSui.playerInfo(pPlayer, targetID)
 			if (not PlayerObject(pGhost):isOnline()) then
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time Until Attack:" .. " \\#pcontrast2 Player Offline\n"
 			elseif (timeTilAttack > 0) then
-				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time Until Attack:" .. " \\#pcontrast2 " .. VillageGmSui:getTimeString(timeTilAttack) .. "\n"
+				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time Until Attack:" .. " \\#pcontrast2 " .. VillageGmSui:getTimeString(timeTilAttack * 1000) .. "\n"
 			else
 				promptBuf = promptBuf .. " \\#pcontrast1 " .. "Time Until Attack:" .. " \\#pcontrast2 Soon\n"
 			end
@@ -380,11 +380,12 @@ function VillageGmSui.playerInfo(pPlayer, targetID)
 
 	sui.add("FS Branch Management", "branchManagement" .. targetID)
 
-	if (CreatureObject(pPlayer):hasSkill("force_title_jedi_rank_03")) then
+	if (CreatureObject(pTarget):hasSkill("force_title_jedi_rank_03")) then
 		sui.add("Manage Player FRS", "frsManagement" .. targetID)
 	end
 
 	if (VillageJediManagerCommon.hasActiveQuestThisPhase(pTarget)) then
+		sui.add("Manage Active Village Quest", "manageActiveVillageQuest" .. targetID)
 		sui.add("Reset Active Quest This Phase", "resetActiveQuest" .. targetID)
 	end
 
@@ -415,6 +416,153 @@ function VillageGmSui.playerInfo(pPlayer, targetID)
 	sui.sendTo(pPlayer)
 end
 
+function VillageGmSui.manageActiveVillageQuest(pPlayer, targetID)
+	local pTarget = getSceneObject(targetID)
+
+	if (pTarget == nil) then
+		return
+	end
+
+	local pGhost = CreatureObject(pTarget):getPlayerObject()
+
+	if (pGhost == nil) then
+		return
+	end
+
+	if (not VillageJediManagerCommon.hasActiveQuestThisPhase(pTarget) or VillageJediManagerCommon.hasCompletedQuestThisPhase(pTarget)) then
+		CreatureObject(pPlayer):sendSystemMessage("Player does not have an active quest this phase.")
+		return
+	end
+
+	local sui = SuiListBox.new("VillageGmSui", "manageVillageQuestCallback")
+	sui.setTitle("Village Quest Management")
+
+	local curQuest = VillageJediManagerCommon.getActiveQuestIdThisPhase(pTarget)
+	local questGiver = ""
+	local promptAdd = ""
+
+	if (curQuest == VILLAGE_PHASE1_SARGUILLO) then
+		questGiver = "Sarguillo (Phase 1)"
+		sui.add("Reset Current Patrol", "resetSarguilloPatrol" .. targetID)
+		sui.add("Complete Current Patrol", "completeSarguilloPatrol" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE1_QUHAREK) then
+		questGiver = "Quharek (Phase 1)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE1_SIVARRA) then
+		questGiver = "Sivarra (Phase 1)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE1_WHIP) then
+		questGiver = "Whip (Phase 1)"
+		sui.add("Complete Current Escort", "completeWhipEscort" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE2_DAGEERIN) then
+		questGiver = "Dageerin (Phase 2)"
+		sui.add("Reset task limit", "resetDageerinTaskLimit" .. targetID)
+		promptAdd = " \\#pcontrast1 " .. "Tasks towards limit:" .. " \\#pcontrast2 " .. readScreenPlayData(pTarget, "VillageJediProgression", "FsSadTasksSinceLastTimestamp") .. "\n"
+	elseif (curQuest == VILLAGE_PHASE2_QUHAREK) then
+		questGiver = "Quharek (Phase 2)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE2_WHIP) then
+		questGiver = "Whip (Phase 2)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE2_SURVEYOR) then
+		questGiver = "Surveyor (Phase 2)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE3_DAGEERIN) then
+		questGiver = "Dageerin (Phase 3)"
+		sui.add("Reset task limit", "resetDageerinTaskLimit" .. targetID)
+		promptAdd = " \\#pcontrast1 " .. "Tasks towards limit:" .. " \\#pcontrast2 " .. readScreenPlayData(pTarget, "VillageJediProgression", "FsSad2TasksSinceLastTimestamp") .. "\n"
+	elseif (curQuest == VILLAGE_PHASE3_QUHAREK) then
+		questGiver = "Quharek (Phase 3)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE3_SARGUILLO) then
+		questGiver = "Sarguillo (Phase 3)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE3_SURVEYOR) then
+		questGiver = "Surveyor (Phase 3)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE4_ENGINEER) then
+		questGiver = "Chief Engineer (Phase 4)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE4_SARGUILLO_CP) then
+		questGiver = "Sarguillo - Combat Prowess (Phase 4)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE4_SARGUILLO_ER) then
+		questGiver = "Sarguillo - Enhanced Reflexes (Phase 4)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	elseif (curQuest == VILLAGE_PHASE4_SIVARRA) then
+		questGiver = "Sivarra (Phase 4)"
+		sui.add("No current available functions for this quest", "noAvailableFunctions" .. targetID)
+	end
+
+	local promptBuf = " \\#pcontrast1 " .. "Player:" .. " \\#pcontrast2 " .. SceneObject(pTarget):getCustomObjectName() .. " (" .. targetID .. ")\n"
+	promptBuf = promptBuf .. " \\#pcontrast1 " .. "Current Quest:" .. " \\#pcontrast2 " .. questGiver .. "\n"
+	promptBuf = promptBuf .. promptAdd
+
+	sui.setPrompt(promptBuf)
+
+
+	sui.sendTo(pPlayer)
+end
+
+function VillageGmSui:manageVillageQuestCallback(pPlayer, pSui, eventIndex, args)
+	local cancelPressed = (eventIndex == 1)
+
+	if (cancelPressed) then
+		return
+	end
+
+	local pPageData = LuaSuiBoxPage(pSui):getSuiPageData()
+
+	if (pPageData == nil) then
+		return
+	end
+
+	local suiPageData = LuaSuiPageData(pPageData)
+	local menuOption =  suiPageData:getStoredData(tostring(args))
+
+	local targetID, pTarget
+	local curPhase = VillageJediManagerTownship:getCurrentPhase()
+
+	if (string.find(menuOption, "%d")) then
+		targetID = string.match(menuOption, '%d+')
+		menuOption = string.gsub(menuOption, targetID, "")
+
+		if (menuOption == "noAvailableFunctions") then
+			return
+		end
+
+		pTarget = getSceneObject(targetID)
+
+		if (pTarget == nil) then
+			printLuaError("Unable to find player for VillageGmSui function " .. menuOption .. " using oid " .. targetID)
+			return
+		end
+	end
+
+	if (curPhase == 1) then
+		if (menuOption == "resetSarguilloPatrol") then
+			FsPatrol:resetFsPatrol(pTarget)
+			CreatureObject(pPlayer):sendSystemMessage("Player's current Sarguillo Phase 1 patrol has been reset.")
+		elseif (menuOption == "completeSarguilloPatrol") then
+			CreatureObject(pPlayer):sendSystemMessage("Player's current Sarguillo Phase 1 patrol has been completed.")
+			villageSarguilloPhase1ConvoHandler:completeCurrentPatrol(pTarget)
+		elseif (menuOption == "completeWhipEscort") then
+			CreatureObject(pPlayer):sendSystemMessage("Player's current Whip Phase 1 escort has been completed.")
+			FsReflex1:completeVillagerEscort(pTarget)
+		end
+	elseif (curPhase == 2) then
+		if (menuOption == "resetDageerinTaskLimit") then
+			FsSad:setTasksSinceLastTimestamp(pTarget, 0)
+			CreatureObject(pPlayer):sendSystemMessage("Player's SAD task count towards limit has been reset back to 0.")
+		end
+	elseif (curPhase == 3) then
+		if (menuOption == "resetDageerinTaskLimit") then
+			FsSad2:setTasksSinceLastTimestamp(pTarget, 0)
+			CreatureObject(pPlayer):sendSystemMessage("Player's SAD2 task count towards limit has been reset back to 0.")
+		end
+	end
+end
+
 function VillageGmSui.forceIntroSithAttackEvent(pPlayer, targetID)
 	local pTarget = getSceneObject(targetID)
 
@@ -430,7 +578,7 @@ function VillageGmSui.forceIntroSithAttackEvent(pPlayer, targetID)
 	end
 
 	CreatureObject(pPlayer):sendSystemMessage("Now forcing the sith attack intro event to start for " .. CreatureObject(pTarget):getFirstName() .. ".")
-	FsIntro:startSithAttack(pPlayer)
+	FsIntro:startSithAttack(pTarget)
 end
 
 function VillageGmSui.forceIntroOldManEvent(pPlayer, targetID)
@@ -448,7 +596,7 @@ function VillageGmSui.forceIntroOldManEvent(pPlayer, targetID)
 	end
 
 	CreatureObject(pPlayer):sendSystemMessage("Now forcing the old man event intro to start for " .. CreatureObject(pTarget):getFirstName() .. ".")
-	FsIntro:startOldMan(pPlayer)
+	FsIntro:startOldMan(pTarget)
 end
 
 function VillageGmSui.forceOutroOldManEvent(pPlayer, targetID)
@@ -466,7 +614,7 @@ function VillageGmSui.forceOutroOldManEvent(pPlayer, targetID)
 	end
 
 	CreatureObject(pPlayer):sendSystemMessage("Now forcing the old man event outro to start for " .. CreatureObject(pTarget):getFirstName() .. ".")
-	FsOutro:startOldMan(pPlayer)
+	FsOutro:startOldMan(pTarget)
 end
 
 function VillageGmSui.resetActiveQuest(pPlayer, targetID)
@@ -690,9 +838,9 @@ function VillageGmSui:changeCouncilTypeCallback(pPlayer, pSui, eventIndex, args)
 
 	local targetID = string.match(menuOption, '%d+')
 	local newType = string.gsub(menuOption, targetID, "")
-	
+
 	local councilType = 0
-	
+
 	if (newType == "lightSide") then
 		councilType = 1
 	elseif (newType == "darkSide") then
@@ -716,18 +864,18 @@ function VillageGmSui:changeCouncilTypeCallback(pPlayer, pSui, eventIndex, args)
 	if (pGhost == nil) then
 		return
 	end
-	
+
 	if (councilType == JediTrials.COUNCIL_LIGHT) then
 		CreatureObject(pPlayer):sendSystemMessage("Council type has been set to Light Side.")
-		CreatureObject(pPlayer):setFaction(FACTIONREBEL)
+		CreatureObject(pTarget):setFaction(FACTIONREBEL)
 	else
 		CreatureObject(pPlayer):sendSystemMessage("Council type has been set to Dark Side.")
-		CreatureObject(pPlayer):setFaction(FACTIONIMPERIAL)
+		CreatureObject(pTarget):setFaction(FACTIONIMPERIAL)
 	end
 
 	PlayerObject(pGhost):setFrsRank(0)
 	PlayerObject(pGhost):setFrsCouncil(councilType)
-	JediTrials:setJediCouncil(pPlayer, councilType)
+	JediTrials:setJediCouncil(pTarget, councilType)
 
 	VillageGmSui.frsManagement(pPlayer, targetID)
 end
@@ -755,7 +903,7 @@ function VillageGmSui.fixCouncilType(pPlayer, targetID)
 
 	if (luaCouncil ~= JediTrials.COUNCIL_LIGHT and luaCouncil ~= JediTrials.COUNCIL_DARK) then
 		luaCouncil = frsCouncil
-		JediTrials:setJediCouncil(pPlayer, frsCouncil)
+		JediTrials:setJediCouncil(pTarget, frsCouncil)
 	else
 		PlayerObject(pGhost):setFrsCouncil(luaCouncil)
 	end

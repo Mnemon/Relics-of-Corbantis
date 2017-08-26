@@ -127,6 +127,15 @@ void GroupObjectImplementation::addMember(CreatureObject* newMember) {
 }
 
 void GroupObjectImplementation::removeMember(CreatureObject* member) {
+	bool wasLeader = getLeader() == member;
+
+	if (hasSquadLeader()) {
+		if (wasLeader)
+			removeGroupModifiers();
+		else
+			removeGroupModifiers(member);
+	}
+
 	for (int i = 0; i < groupMembers.size(); i++) {
 		CreatureObject* scno = groupMembers.get(i).get().get();
 
@@ -161,8 +170,8 @@ void GroupObjectImplementation::removeMember(CreatureObject* member) {
 			GroupManager::instance()->changeMasterLooter(_this.getReferenceUnsafeStaticCast(), groupLeader, false);
 		}
 
-		if (hasSquadLeader()) {
-			removeGroupModifiers(member);
+		if (wasLeader && hasSquadLeader()) {
+			addGroupModifiers();
 		}
 
 		Zone* zone = member->getZone();
@@ -341,6 +350,8 @@ void GroupObjectImplementation::addGroupModifiers(CreatureObject* player) {
 	buff->setSkillModifier("private_group_melee_defense", leader->getSkillMod("group_melee_defense"));
 	buff->setSkillModifier("burst_run", leader->getSkillMod("group_burst_run"));
 	player->addBuff(buff);
+
+	buff->addObservers();
 }
 
 void GroupObjectImplementation::removeGroupModifiers(CreatureObject* player) {

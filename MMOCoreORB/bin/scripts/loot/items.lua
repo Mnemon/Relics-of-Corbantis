@@ -1248,3 +1248,28 @@ includeFile("items/painting/painting_twilek_f_sm_s02.lua")
 includeFile("items/painting/painting_twilek_f_sm_s03.lua")
 includeFile("items/painting/painting_twilek_f_sm_s04.lua")
 includeFile("items/painting/painting_victorious_reign.lua")
+
+-- Veteran Rewards
+includeFile("items/veteran_rewards/vet_painting_01.lua")
+includeFile("items/veteran_rewards/vet_painting_02.lua")
+includeFile("items/veteran_rewards/vet_painting_03.lua")
+includeFile("items/veteran_rewards/vet_painting_04.lua")
+includeFile("items/veteran_rewards/vet_painting_05.lua")
+includeFile("items/veteran_rewards/vet_painting_06.lua")
+includeFile("items/veteran_rewards/vet_painting_07.lua")
+includeFile("items/veteran_rewards/vet_painting_08.lua")
+includeFile("items/veteran_rewards/vet_painting_09.lua")
+
+--corellian_corvette sub-folder
+includeFile("items/corellian_corvette/shirt_s03_rebel.lua")
+includeFile("items/corellian_corvette/armor_marine_chest_plate_rebel.lua")
+includeFile("items/corellian_corvette/bantha_doll.lua")
+includeFile("items/corellian_corvette/berserker_schematic.lua")
+includeFile("items/corellian_corvette/corellian_corvette_rifle_berserker_schematic.lua")
+includeFile("items/corellian_corvette/corvette_rifle_barrel.lua")
+includeFile("items/corellian_corvette/droid_maint_module.lua")
+includeFile("items/corellian_corvette/bootdisk.lua")
+includeFile("items/corellian_corvette/spice_crash_n_burn.lua")
+includeFile("items/corellian_corvette/spice_giggledust.lua")
+includeFile("items/corellian_corvette/veh_power_plant_av21.lua")
+

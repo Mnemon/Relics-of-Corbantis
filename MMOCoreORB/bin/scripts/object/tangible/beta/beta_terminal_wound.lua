@@ -43,6 +43,25 @@
 
 object_tangible_beta_beta_terminal_wound = object_tangible_beta_shared_beta_terminal_wound:new {
 
+	gameObjectType = 16400,
+	customName = "Medical Services Terminal",
+
+	maxCondition = 0,
+
+
+	templateType = CHARACTERBUILDERTERMINAL,
+
+    suiBoxTitle = "Medical Services Terminal", 
+    suiBoxText = "Please choose an option ...",
+
+
+	itemList = {
+			"Buff Character (5,000 Credits)", "enhance_character",
+			"Remove Buffs", "reset_buffs",
+			
+	}
+
+
 }
 
 ObjectTemplates:addTemplate(object_tangible_beta_beta_terminal_wound, "object/tangible/beta/beta_terminal_wound.iff")

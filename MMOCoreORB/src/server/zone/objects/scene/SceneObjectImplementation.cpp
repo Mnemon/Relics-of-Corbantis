@@ -202,7 +202,12 @@ void SceneObjectImplementation::close(SceneObject* client) {
 }
 
 void SceneObjectImplementation::link(SceneObject* client, uint32 containmentType) {
-	BaseMessage* msg = new UpdateContainmentMessage(asSceneObject(), getParent().get(), containmentType);
+	auto ref = getParent().get();
+
+	if (ref == nullptr)
+		return;
+
+	BaseMessage* msg = new UpdateContainmentMessage(asSceneObject(), ref, containmentType);
 	client->sendMessage(msg);
 }
 
@@ -301,8 +306,7 @@ void SceneObjectImplementation::sendTo(SceneObject* player, bool doClose, bool f
 	BaseMessage* msg = new SceneObjectCreateMessage(asSceneObject());
 	player->sendMessage(msg);
 
-	if (parent.get() != NULL)
-		link(player, containmentType);
+	link(player, containmentType);
 
 	try {
 		sendBaselinesTo(player);
@@ -384,7 +388,7 @@ void SceneObjectImplementation::setObjectMenuComponent(const String& name) {
 
 		if (test.isValidTable()) {
 			objectMenuComponent = new LuaObjectMenuComponent(name);
-			info("New Lua ObjectMenuComponent created: '" + name + "' for " + templateObject->getFullTemplateString());
+			debug("New Lua ObjectMenuComponent created: '" + name + "' for " + templateObject->getFullTemplateString());
 			ComponentManager::instance()->putComponent(name, objectMenuComponent);
 		} else {
 			error("ObjectMenuComponent not found: '" + name + "' for " + templateObject->getFullTemplateString());
@@ -406,7 +410,7 @@ void SceneObjectImplementation::setContainerComponent(const String& name) {
 
 		if (test.isValidTable()) {
 			containerComponent = new LuaContainerComponent(name);
-			info("New Lua ContainerComponent created: '" + name + "' for " + templateObject->getFullTemplateString());
+			debug("New Lua ContainerComponent created: '" + name + "' for " + templateObject->getFullTemplateString());
 			ComponentManager::instance()->putComponent(name, containerComponent);
 		} else {
 			error("ContainerComponent not found: '" + name + "' for " + templateObject->getFullTemplateString());
@@ -438,23 +442,22 @@ void SceneObjectImplementation::sendSlottedObjectsTo(SceneObject* player) {
 }
 
 void SceneObjectImplementation::sendContainerObjectsTo(SceneObject* player, bool forceLoad) {
-	if (!forceLoad && !containerObjects.isLoaded())
-		return;
+	if (forceLoad || containerObjects.isLoaded() || isASubChildOf(player)) {
+		//sending all objects by default
+		VectorMap<uint64, ManagedReference<SceneObject* > > objects;
+		getContainerObjects(objects);
 
-	//sending all objects by default
-	VectorMap<uint64, ManagedReference<SceneObject* > > objects;
-	getContainerObjects(objects);
+		for (int j = 0; j < objects.size(); ++j) {
+			SceneObject* containerObject = objects.get(j);
 
-	for (int j = 0; j < objects.size(); ++j) {
-		SceneObject* containerObject = objects.get(j);
+			if (containerObject == NULL)
+				continue;
 
-		if (containerObject == NULL)
-			continue;
-
-		if (containerObject->isInQuadTree()) {
-			notifyInsert(containerObject);
-		} else {
-			containerObject->sendTo(player, true, false);
+			if (containerObject->isInQuadTree()) {
+				notifyInsert(containerObject);
+			} else {
+				containerObject->sendTo(player, true, false);
+			}
 		}
 	}
 }
@@ -1405,7 +1408,15 @@ void SceneObjectImplementation::faceObject(SceneObject* obj, bool notifyClient) 
 void SceneObjectImplementation::getContainerObjects(VectorMap<uint64, ManagedReference<SceneObject*> >& objects) {
 	ReadLocker locker(&containerLock);
 
-	objects = *containerObjects.getContainerObjects();
+	if (containerObjects.isLoaded(false)) {
+		objects = *containerObjects.getContainerObjects();
+	} else {
+		locker.release();
+
+		Locker writeLocker(&containerLock);
+
+		objects = *containerObjects.getContainerObjects();
+	}
 }
 
 void SceneObjectImplementation::getSlottedObjects(VectorMap<String, ManagedReference<SceneObject*> >& objects) {

@@ -422,3 +422,6 @@ includeFile("lair/creature_dynamic/yavin4_tanc_mite_pack_neutral_none.lua")
 includeFile("lair/creature_dynamic/yavin4_tybis_herd_neutral_none.lua")
 includeFile("lair/creature_dynamic/yavin4_tybis_pack_neutral_none.lua")
 includeFile("lair/creature_dynamic/yavin4_whisper_bird_pack_neutral_none.lua")
+
+-- Added to Relics
+includeFile("lair/creature_dynamic/yavin4_acklay_neutral_none.lua")

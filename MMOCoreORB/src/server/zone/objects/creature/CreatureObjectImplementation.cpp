@@ -333,7 +333,7 @@ void CreatureObjectImplementation::sendBaselinesTo(SceneObject* player) {
 	if (!player->isPlayerCreature())
 		return;
 
-	CreatureObject* playerCreature = cast<CreatureObject*> (player);
+	CreatureObject* playerCreature = static_cast<CreatureObject*> (player);
 
 	sendPvpStatusTo(playerCreature);
 }
@@ -2574,8 +2574,8 @@ void CreatureObjectImplementation::removeBuff(Buff* buff) {
 	creatureBuffs.removeBuff(buff);
 }
 
-void CreatureObjectImplementation::clearBuffs(bool updateclient) {
-	creatureBuffs.clearBuffs(updateclient);
+void CreatureObjectImplementation::clearBuffs(bool updateclient, bool removeAll) {
+	creatureBuffs.clearBuffs(updateclient, removeAll);
 }
 
 void CreatureObjectImplementation::notifyPostureChange(int newPosture) {
@@ -2631,9 +2631,11 @@ void CreatureObjectImplementation::updateGroupMFDPositions() {
 }
 
 void CreatureObjectImplementation::notifySelfPositionUpdate() {
-	if (getZoneUnsafe() != NULL) {
-		ManagedReference<PlanetManager*> planetManager =
-				getZoneUnsafe()->getPlanetManager();
+	auto zone = getZoneUnsafe();
+
+	if (zone != NULL && hasState(CreatureState::ONFIRE)) {
+		PlanetManager* planetManager =
+				zone->getPlanetManager();
 
 		if (planetManager != NULL) {
 			TerrainManager* terrainManager = planetManager->getTerrainManager();
@@ -2641,14 +2643,18 @@ void CreatureObjectImplementation::notifySelfPositionUpdate() {
 			if (terrainManager != NULL) {
 				float waterHeight;
 				
-				Reference<CreatureObject*> creature = _this.getReferenceUnsafeStaticCast();
+				CreatureObject* creature = asCreatureObject();
 				
-				if (creature->getParent() == NULL && terrainManager->getWaterHeight(creature->getPositionX(), creature->getPositionY(), waterHeight)) {
-					
-					if (creature->getPositionZ() + creature->getSwimHeight() - waterHeight < 0.2) {
+				if (parent == NULL && terrainManager->getWaterHeight(getPositionX(), getPositionY(), waterHeight)) {
+					if ((getPositionZ() + getSwimHeight() - waterHeight < 0.2)) {
+						Reference<CreatureObject*> strongRef = asCreatureObject();
 						
-						if (creature->hasState(CreatureState::ONFIRE))
-							creature->healDot(CreatureState::ONFIRE, 100);
+						Core::getTaskManager()->executeTask([strongRef] () {
+							Locker locker(strongRef);
+
+							if (strongRef->hasState(CreatureState::ONFIRE))
+								strongRef->healDot(CreatureState::ONFIRE, 100);
+						}, "CreoPositionUpdateHealFireLambda");
 					}
 				}
 			}
@@ -2813,7 +2819,7 @@ void CreatureObjectImplementation::sendMessage(BasePacket* msg) {
 }
 
 Reference<ZoneClientSession*> CreatureObjectImplementation::getClient() {
-	return owner.get();
+	return owner.WeakReference::get();
 }
 
 void CreatureObjectImplementation::sendStateCombatSpam(const String& fileName, const String& stringName, byte color, int damage, bool broadcast) {
@@ -2824,7 +2830,7 @@ void CreatureObjectImplementation::sendStateCombatSpam(const String& fileName, c
 	if (isDead()) //We don't need to know when a corpse can see clearly again!
 		return;
 
-	ManagedReference<CreatureObject*> creature = asCreatureObject();
+	auto creature = asCreatureObject();
 
 	if (broadcast) { //Send spam to all nearby players.
 		CombatManager::instance()->broadcastCombatSpam(creature, NULL, NULL, 0, fileName, stringName, color);
@@ -2898,7 +2904,7 @@ bool CreatureObjectImplementation::isAggressiveTo(CreatureObject* object) {
 	if ((pvpStatusBitmask & CreatureFlag::OVERT) && (object->getPvpStatusBitmask() & CreatureFlag::OVERT) && object->getFaction() != getFaction())
 		return true;
 
-	if (ghost->isInBountyLockList(object->getObjectID()) || targetGhost->isInBountyLockList(asCreatureObject()->getObjectID())) {
+	if (ghost->hasBhTef() && (hasBountyMissionFor(object) || object->hasBountyMissionFor(asCreatureObject()))) {
 		return true;
 	}
 
@@ -2910,8 +2916,10 @@ bool CreatureObjectImplementation::isAggressiveTo(CreatureObject* object) {
 }
 
 bool CreatureObjectImplementation::isAttackableBy(TangibleObject* object) {
-	if(object->isCreatureObject())
-		return isAttackableBy(object->asCreatureObject());
+	auto creo = object->asCreatureObject();
+
+	if (creo != nullptr)
+		return isAttackableBy(creo);
 
 	return isAttackableBy(object, false);
 }
@@ -3010,7 +3018,7 @@ bool CreatureObjectImplementation::isAttackableBy(CreatureObject* object, bool b
 	if (areInDuel)
 		return true;
 
-	if(object->hasBountyMissionFor(asCreatureObject()) || (ghost->isBountyLocked() && ghost->isInBountyLockList(object->getObjectID())))
+	if (object->hasBountyMissionFor(asCreatureObject()) || (ghost->hasBhTef() && hasBountyMissionFor(object)))
 		return true;
 
 	if (getGroupID() != 0 && getGroupID() == object->getGroupID())
@@ -3041,15 +3049,20 @@ bool CreatureObjectImplementation::isHealableBy(CreatureObject* object) {
 	if (ghost == NULL)
 		return false;
 
-	if (ghost->isBountyLocked())
+	if (ghost->hasBhTef())
 		return false;
 
 	//if ((pvpStatusBitmask & CreatureFlag::OVERT) && (object->getPvpStatusBitmask() & CreatureFlag::OVERT) && object->getFaction() != getFaction())
 
 	CreatureObject* targetCreo = asCreatureObject();
 
-	if (isPet())
-		targetCreo = getLinkedCreature().get();
+	if (isPet()) {
+		auto linkedCreature = getLinkedCreature().get();
+
+		if (linkedCreature != nullptr) {
+			targetCreo = linkedCreature.get();
+		}
+	}
 
 	uint32 targetFactionStatus = targetCreo->getFactionStatus();
 	uint32 currentFactionStatus = object->getFactionStatus();
@@ -3284,13 +3297,15 @@ void CreatureObjectImplementation::setFaction(unsigned int crc) {
 		StoreSpawnedChildrenTask* task = new StoreSpawnedChildrenTask(player, petsToStore);
 		task->execute();
 	}
+
+	notifyObservers(ObserverEventType::FACTIONCHANGED);
 }
 
 void CreatureObjectImplementation::destroyPlayerCreatureFromDatabase(bool destroyContainedObjects) {
 	if (!isPlayerCreature())
 		return;
 
-	clearBuffs(false);
+	clearBuffs(false, true);
 
 	if(dataObjectComponent != NULL) {
 		dataObjectComponent->notifyObjectDestroyingFromDatabase();

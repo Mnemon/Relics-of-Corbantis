@@ -274,10 +274,8 @@ function DeathWatchBunkerScreenPlay:spawnObjects()
 	local spawnedPointer = spawnMobile("endor", spawn[1], spawn[2], spawn[3], spawn[4], spawn[5], spawn[6], spawn[7])
 	CreatureObject(spawnedPointer):setPvpStatusBitmask(0)
 	CreatureObject(spawnedPointer):setCustomObjectName("R2-M2")
-	AiAgent(spawnedPointer):setAiTemplate("idlewait") -- Don't move unless patrol point is added to list
-	AiAgent(spawnedPointer):setFollowState(4) -- Patrolling
 	writeData("dwb:bombDroid", SceneObject(spawnedPointer):getObjectID())
-	createObserver(OBJECTDESTRUCTION, "DeathWatchBunkerScreenPlay", "bombDroidDetonated", spawnedPointer)
+	createEvent(100, "DeathWatchBunkerScreenPlay", "setBombDroidTemplate", spawnedPointer, "")
 
 	-- Bomb Droid Debris
 	spawnedPointer = spawnSceneObject("endor", "object/tangible/dungeon/death_watch_bunker/invulnerable_debris.iff", 112.552,-63.7,-116.21,5996348,0.925444,0,0.378885,0)
@@ -438,6 +436,12 @@ function DeathWatchBunkerScreenPlay:spawnObjects()
 	writeData(spawnedSceneObject:getObjectID() .. ":dwb:lootbox", 3)
 	createEvent(1000, "DeathWatchBunkerScreenPlay", "refillContainer", spawnedPointer, "")
 	createObserver(OBJECTRADIALUSED, "DeathWatchBunkerScreenPlay", "boxLooted", spawnedPointer)
+end
+
+function DeathWatchBunkerScreenPlay:setBombDroidTemplate(pDroid)
+	AiAgent(pDroid):setAiTemplate("idlewait") -- Don't move unless patrol point is added to list
+	AiAgent(pDroid):setFollowState(4) -- Patrolling
+	createObserver(OBJECTDESTRUCTION, "DeathWatchBunkerScreenPlay", "bombDroidDetonated", spawnedPointer)
 end
 
 function DeathWatchBunkerScreenPlay:setLootBoxPermissions(pContainer)
@@ -879,10 +883,8 @@ function DeathWatchBunkerScreenPlay:respawnBombDroid(pDroid)
 	local pBombDroid = spawnMobile("endor", spawn[1], spawn[2], spawn[3], spawn[4], spawn[5], spawn[6], spawn[7])
 	CreatureObject(pBombDroid):setPvpStatusBitmask(0)
 	CreatureObject(pBombDroid):setCustomObjectName("R2-M2")
-	AiAgent(pBombDroid):setAiTemplate("idlewait") -- Don't move unless patrol point is added to list
-	AiAgent(pBombDroid):setFollowState(4) -- Patrolling
 	writeData("dwb:bombDroid", SceneObject(pBombDroid):getObjectID())
-	createObserver(OBJECTDESTRUCTION, "DeathWatchBunkerScreenPlay", "bombDroidDetonated", pBombDroid)
+	createEvent(100, "DeathWatchBunkerScreenPlay", "setBombDroidTemplate", pBombDroid, "")
 end
 
 function DeathWatchBunkerScreenPlay:haldoTimer(pCreature)
@@ -997,7 +999,7 @@ function DeathWatchBunkerScreenPlay:spawnDefender(spawnData, spawnName)
 
 	if (pMobile ~= nil) then
 		createEvent(300 * 1000, "DeathWatchBunkerScreenPlay", "despawnMobile", pMobile, "")
-		createEvent(5 * 1000, "DeathWatchBunkerScreenPlay", "startDefenderPath", pMobile, spawnName)
+		createEvent(10, "DeathWatchBunkerScreenPlay", "startDefenderPath", pMobile, spawnName)
 	end
 
 	return pMobile
@@ -1023,17 +1025,23 @@ function DeathWatchBunkerScreenPlay:startDefenderPath(pMobile, spawnName)
 		printLuaError("DeathWatchBunkerScreenPlay:startDefenderPath, invalid spawnName " .. spawnName)
 	end
 
-	local spawnData = deathWatchSpecialSpawns[spawnName]
-
-	AiAgent(pMobile):setAiTemplate("stationary")
-	AiAgent(pMobile):setFollowState(4)
-	AiAgent(pMobile):stopWaiting()
-	AiAgent(pMobile):setWait(0)
-
 	local randomX = (-5 + getRandomNumber(10)) / 10
 	local randomY = (-5 + getRandomNumber(10)) / 10
 
+	local pCell = getSceneObject(patrolPoint[4])
+
+	if (pCell == nil) then
+		printLuaError("Invalid cellid " .. patrolPoint[4] .. " in DeathWatchBunkerScreenPlay:startDefenderPath for spawn " .. spawnName)
+		return
+	end
+
+	AiAgent(pMobile):setAiTemplate("deathwatchdefender")
+	AiAgent(pMobile):setFollowState(4)
+	AiAgent(pMobile):setHomeLocation(patrolPoint[1] + randomX, patrolPoint[2], patrolPoint[3] + randomY, pCell)
+	AiAgent(pMobile):stopWaiting()
+	AiAgent(pMobile):setWait(0)
 	AiAgent(pMobile):setNextPosition(patrolPoint[1] + randomX, patrolPoint[2], patrolPoint[3] + randomY, patrolPoint[4])
+	AiAgent(pMobile):executeBehavior()
 end
 
 function DeathWatchBunkerScreenPlay:spawnNextA(pCreature)
@@ -1169,23 +1177,23 @@ function DeathWatchBunkerScreenPlay:spawnNextC(creatureObject)
 		end
 
 		spawn = deathWatchSpecialSpawns["fenri_dalso_assist2"]
-		pDefender = self:spawnDefender(spawn, "fenri_dalso2")
+		self:spawnDefender(spawn, "fenri_dalso2")
 	else
 		writeData(5996314 .. ":dwb:terminalCnextSpawn", 0)
 		local spawn = deathWatchSpecialSpawns["fenri_dalso_assist1"]
-		local pDefender = self:spawnDefender(spawn, "fenri_dalso3")
+		self:spawnDefender(spawn, "fenri_dalso3")
 
 		spawn = deathWatchSpecialSpawns["fenri_dalso_assist2"]
-		pDefender = self:spawnDefender(spawn, "fenri_dalso3")
+		self:spawnDefender(spawn, "fenri_dalso3")
 
 		spawn = deathWatchSpecialSpawns["fenri_dalso_assist3"]
-		pDefender = self:spawnDefender(spawn, "fenri_dalso3")
+		self:spawnDefender(spawn, "fenri_dalso3")
 
 		spawn = deathWatchSpecialSpawns["fenri_dalso_assist4"]
-		pDefender = self:spawnDefender(spawn, "fenri_dalso3")
+		self:spawnDefender(spawn, "fenri_dalso3")
 
 		spawn = deathWatchSpecialSpawns["fenri_dalso"]
-		pDefender = self:spawnDefender(spawn, "fenri_dalso1")
+		self:spawnDefender(spawn, "fenri_dalso1")
 	end
 end
 

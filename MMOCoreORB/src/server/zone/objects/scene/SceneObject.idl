@@ -54,9 +54,10 @@ import server.zone.objects.creature.ai.AiAgent;
 include templates.appearance.MeshData;
 include templates.collision.BaseBoundingVolume;
 include server.zone.objects.scene.variables.StdFunction;
+include server.metrics.Metrics;
 
 @mock
-class SceneObject extends QuadTreeEntry implements Logger {
+class SceneObject extends QuadTreeEntry implements Logger, Metrics {
 	protected transient ZoneProcessServer server;
 
 	protected transient ZoneComponent zoneComponent;
@@ -208,6 +209,17 @@ class SceneObject extends QuadTreeEntry implements Logger {
 	@dirty
 	public void error(final string msg) {
 		Logger.error(msg);
+	}
+
+	/**
+	 * Logs a debug message
+	 * @pre {}
+	 * @post {debug message has been printed to console and file }
+	 * @param msg debug message to print
+	 */
+	@dirty
+	public void debug(final string msg) {
+		Logger.debug(msg);
 	}
 
 	/**

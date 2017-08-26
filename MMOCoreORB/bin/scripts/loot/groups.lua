@@ -356,6 +356,13 @@ includeFile("groups/wearables/wearables_rare.lua")
 includeFile("groups/wearables/wearables_scarce.lua")
 includeFile("groups/wearables/wearables_uncommon.lua")
 
+-- corellian_corvette sub-folder
+includeFile("groups/corellian_corvette/imperial_corvette_loot.lua")
+includeFile("groups/corellian_corvette/neutral_corvette_loot.lua")
+includeFile("groups/corellian_corvette/rebel_corvette_loot.lua")
+includeFile("groups/corellian_corvette/disk_loot.lua")
+includeFile("groups/corellian_corvette/r2droid_loot.lua")
+
 -- Relics
 includeFile("groups/events_sea.lua")
 includeFile("groups/events_paintings.lua")
@@ -366,4 +373,5 @@ includeFile("groups/named_crystals.lua")
 includeFile("groups/admin_crystals.lua")
 includeFile("groups/relics_jinda_special.lua")
 includeFile("groups/relics_gungan_special.lua")
+includeFile("groups/veteran_rewards.lua")
 

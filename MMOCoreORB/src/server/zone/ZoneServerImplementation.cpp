@@ -194,7 +194,7 @@ void ZoneServerImplementation::initialize() {
 void ZoneServerImplementation::startZones() {
 	info("Loading zones.");
 
-	SortedVector<String>* enabledZones = configManager->getEnabledZones();
+	auto enabledZones = configManager->getEnabledZones();
 
 	StructureManager* structureManager = StructureManager::instance();
 	structureManager->setZoneServer(_this.getReferenceUnsafeStaticCast());
@@ -581,8 +581,9 @@ Reference<SceneObject*> ZoneServerImplementation::createClientObject(uint32 temp
 	try {
 		//lock(); ObjectManager has its own mutex
 
-		obj = objectManager->createObject(templateCRC, 1, "clientobjects", oid);
+		obj = objectManager->createObject(templateCRC, 1, "clientobjects", oid, false);
 		obj->setClientObject(true);
+		obj->initializeTransientMembers();
 
 		//unlock();
 	} catch (Exception& e) {

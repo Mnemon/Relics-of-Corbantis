@@ -748,7 +748,7 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 	player->sendSystemMessage(stringId);
 
 	player->updateTimeOfDeath();
-	player->clearBuffs(true);
+	player->clearBuffs(true, false);
 
 	PlayerObject* ghost = player->getPlayerObject();
 
@@ -917,8 +917,12 @@ void PlayerManagerImplementation::sendActivateCloneRequest(CreatureObject* playe
 			cloneMenu->addMenuItem(name, loc->getObjectID());
 		} else if ((cbot->getFacilityType() == CloningBuildingObjectTemplate::LIGHT_JEDI_ONLY && player->hasSkill("force_rank_light_novice")) ||
 				(cbot->getFacilityType() == CloningBuildingObjectTemplate::DARK_JEDI_ONLY && player->hasSkill("force_rank_dark_novice"))) {
-			String name = "Jedi Enclave (" + String::valueOf((int)loc->getWorldPositionX()) + ", " + String::valueOf((int)loc->getWorldPositionY()) + ")";
-			cloneMenu->addMenuItem(name, loc->getObjectID());
+			FrsManager* frsManager = server->getFrsManager();
+
+			if (frsManager->isFrsEnabled()) {
+				String name = "Jedi Enclave (" + String::valueOf((int)loc->getWorldPositionX()) + ", " + String::valueOf((int)loc->getWorldPositionY()) + ")";
+				cloneMenu->addMenuItem(name, loc->getObjectID());
+			}
 		}
 	}
 
@@ -2783,21 +2787,21 @@ void PlayerManagerImplementation::updateSwimmingState(CreatureObject* player, fl
 		return;
 	}
 
-	ManagedReference<Zone*> zone = player->getZone();
+	Zone* zone = player->getZone();
 
 	if (zone == NULL) {
 		player->info("No zone.", true);
 		return;
 	}
 
-	ManagedReference<PlanetManager*> planetManager = zone->getPlanetManager();
+	PlanetManager* planetManager = zone->getPlanetManager();
 
 	if (planetManager == NULL) {
 		player->info("No planet manager.", true);
 		return;
 	}
 
-	ManagedReference<TerrainManager*> terrainManager = planetManager->getTerrainManager();
+	TerrainManager* terrainManager = planetManager->getTerrainManager();
 
 	if (terrainManager == NULL) {
 		player->info("No terrain manager.", true);
@@ -4692,8 +4696,6 @@ void PlayerManagerImplementation::disconnectAllPlayers() {
 			}
 		}
 	}
-
-	info("All players disconnected", true);
 }
 
 bool PlayerManagerImplementation::shouldRescheduleCorpseDestruction(CreatureObject* player, CreatureObject* ai) {
@@ -5031,6 +5033,15 @@ void PlayerManagerImplementation::enhanceCharacter(CreatureObject* player) {
 		return;
 
 	bool message = true;
+	
+	// Credits For Buffs
+	if (player->getCashCredits() < 5000){
+		player->sendSystemMessage("Sorry, you don't have enough cash on hand to purchase a buff.");
+		return;
+	} else if (player->getCashCredits() >= 5000){
+		// Charge player for buffs
+		player->subtractCashCredits(5000);
+	}
 
 	message = message && doEnhanceCharacter(0x98321369, player, medicalBuff, medicalDuration, BuffType::MEDICAL, 0); // medical_enhance_health
 	message = message && doEnhanceCharacter(0x815D85C5, player, medicalBuff, medicalDuration, BuffType::MEDICAL, 1); // medical_enhance_strength
@@ -5044,7 +5055,7 @@ void PlayerManagerImplementation::enhanceCharacter(CreatureObject* player) {
 	message = message && doEnhanceCharacter(0x3EC6FCB6, player, performanceBuff, performanceDuration, BuffType::PERFORMANCE, 8); // performance_enhance_music_willpower
 
 	if (message && player->isPlayerCreature())
-		player->sendSystemMessage("An unknown force strengthens you for battles yet to come.");
+		player->sendSystemMessage("The force flows through your body, strengthening you for your upcoming trials ...");
 }
 
 void PlayerManagerImplementation::sendAdminJediList(CreatureObject* player) {

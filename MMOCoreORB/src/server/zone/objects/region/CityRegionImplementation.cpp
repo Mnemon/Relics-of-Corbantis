@@ -111,9 +111,9 @@ void CityRegionImplementation::updateNavmesh(const AABB& bounds, const String& q
 	}
 
 	if (!area->isNavMeshLoaded()) {
-		NavMeshManager::instance()->enqueueJob(zone, area, area->getBoundingBox(), settings, queue);
+		NavMeshManager::instance()->enqueueJob(area, area->getBoundingBox(), settings, queue);
 	} else {
-		NavMeshManager::instance()->enqueueJob(zone, area, bounds, settings, queue);
+		NavMeshManager::instance()->enqueueJob(area, bounds, settings, queue);
 	}
 }
 
@@ -243,7 +243,16 @@ void CityRegionImplementation::notifyEnter(SceneObject* object) {
 			ManagedReference<CreatureObject*> owner = zone->getZoneServer()->getObject(ownerID).castTo<CreatureObject*>();
 
 			if(owner != NULL && owner->isPlayerCreature() && building->isResidence() && !isCitizen(ownerID)) {
-				cityManager->registerCitizen(_this.getReferenceUnsafeStaticCast(), owner);
+				Reference<CityRegion*> thisRegion = _this.getReferenceUnsafeStaticCast();
+				Reference<SceneObject*> objectRef = object;
+
+				Core::getTaskManager()->executeTask([this, thisRegion, cityManager, owner] () {
+					Locker lockerObject(owner);
+
+					Locker locker(thisRegion, owner);
+
+					cityManager->registerCitizen(_this.getReferenceUnsafeStaticCast(), owner);
+				}, "CityRegionNotifyEnterLambda");
 			}
 		 }
 
@@ -294,6 +303,9 @@ void CityRegionImplementation::notifyExit(SceneObject* object) {
 		object->setCityRegion(NULL);
 	}
 
+	if (object->isPlayerCreature())
+		currentPlayers.decrement();
+
 
 	if (object->isBazaarTerminal() || object->isVendor()) {
 		if (object->isBazaarTerminal())
@@ -308,15 +320,11 @@ void CityRegionImplementation::notifyExit(SceneObject* object) {
 			terminalData->updateUID();
 	}
 
-	if (object->isPlayerCreature())
-		currentPlayers.decrement();
-
 	if (isClientRegion()) {
 		return;
 	}
 
 	if (object->isCreatureObject()) {
-
 		CreatureObject* creature = cast<CreatureObject*>(object);
 
 		StringIdChatParameter params("city/city", "city_leave_city"); //You have left %TO.
@@ -347,7 +355,18 @@ void CityRegionImplementation::notifyExit(SceneObject* object) {
 
 				if(owner != NULL && owner->isPlayerCreature() && building->isResidence() && isCitizen(ownerID)) {
 					CityManager* cityManager = zoneServer->getCityManager();
-					cityManager->unregisterCitizen(_this.getReferenceUnsafeStaticCast(), owner);
+
+					Reference<CityRegion*> thisRegion = _this.getReferenceUnsafeStaticCast();
+					Reference<SceneObject*> objectRef = object;
+
+					Core::getTaskManager()->executeTask([this, thisRegion, objectRef, cityManager, owner] () {
+						Locker lockerObject(owner);
+
+						Locker locker(thisRegion, owner);
+
+						cityManager->unregisterCitizen(_this.getReferenceUnsafeStaticCast(), owner);
+					}, "CityRegionNotifyExitLambda");
+
 				}
 			}
 		}
@@ -765,7 +784,7 @@ void CityRegionImplementation::applySpecializationModifiers(CreatureObject* crea
 		return;
 
 	CityManager* cityManager = getZone()->getZoneServer()->getCityManager();
-	CitySpecialization* cityspec = cityManager->getCitySpecialization(citySpecialization);
+	const CitySpecialization* cityspec = cityManager->getCitySpecialization(citySpecialization);
 
 	if (cityspec == NULL)
 		return;
@@ -786,7 +805,7 @@ void CityRegionImplementation::applySpecializationModifiers(CreatureObject* crea
 		//Remove all current city skillmods
 		creatureReference->removeAllSkillModsOfType(SkillModManager::CITY);
 
-		SkillMods* mods = cityspec->getSkillMods();
+		const SkillMods* mods = cityspec->getSkillMods();
 
 		for (int i = 0; i < mods->size(); ++i) {
 			SkillModsEntry& entry = mods->elementAt(i);

@@ -47,8 +47,8 @@
 allowSameAccountPvpRatingCredit = 0
 
 --Blue frog / GM buff values
-performanceBuff = 1500
-medicalBuff = 2500
+performanceBuff = 600
+medicalBuff = 2250
 performanceDuration = 7200 -- in seconds
 medicalDuration = 7200 -- in seconds
 
@@ -69,9 +69,9 @@ baseStoredShips = 3
 -----------------------------------
 --VETERAN REWARDS CONFIG
 -----------------------------------
-veteranRewardMilestones = {1, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 365} --days, must be sorted low to high
+veteranRewardMilestones = {1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160} --days, must be sorted low to high
 
-veteranRewardAdditionalMilestones = 30 --frequency, in days, of additional milestones (beyond the established ones)
+veteranRewardAdditionalMilestones = 10 --frequency, in days, of additional milestones (beyond the established ones)
 
 veteranRewards = {
 
