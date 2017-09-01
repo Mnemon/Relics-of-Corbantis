@@ -59,19 +59,18 @@ object_tangible_terminal_terminal_character_builder = object_tangible_terminal_s
 	glowyBadgeIds = {12, 14, 15, 16, 17, 19, 20, 21, 23, 30, 38, 39, 71, 105, 106, 107},
 
 	itemList = {
-		
 			"Enhance Character", "enhance_character",
 			"Cleanse Character", "cleanse_character",
 			"Reset Buffs", "reset_buffs",
+			"Fill Force Bar", "fill_force_bar",
 			--"Learn Languages", "language",
 			-- "Credits", "credits",
-			"Apply ALL DoTs", "apply_all_dots",
-			"Apply Poison DOT", "apply_poison_dot",
-			"Apply Bleed DOT", "apply_bleed_dot",
-			"Apply Disease DOT", "apply_disease_dot",
-			"Apply Fire DOT", "apply_fire_dot",
-			"Clear DOTs", "clear_dots",
-			"Fill Force Bar", "fill_force_bar",
+			--"Apply ALL DoTs", "apply_all_dots",
+			--"Apply Poison DOT", "apply_poison_dot",
+			--"Apply Bleed DOT", "apply_bleed_dot",
+			--"Apply Disease DOT", "apply_disease_dot",
+			--"Apply Fire DOT", "apply_fire_dot",
+			--"Clear DOTs", "clear_dots",
 	},
 }
 

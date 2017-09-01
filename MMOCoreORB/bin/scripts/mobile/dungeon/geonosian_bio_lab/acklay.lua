@@ -5,11 +5,11 @@ acklay = Creature:new {
 	faction = "",
 	level = 157,
 	chanceHit = 92.5,
-	damageMin = 935,
-	damageMax = 1580,
+	damageMin = 1235,
+	damageMax = 1880,
 	baseXp = 14884,
-	baseHAM = 96000,
-	baseHAMmax = 118000,
+	baseHAM = 106000,
+	baseHAMmax = 158000,
 	armor = 2,
 	resists = {130,145,155,155,145,30,30,30,-1},
 	meatType = "",
@@ -28,11 +28,20 @@ acklay = Creature:new {
 
 	templates = {"object/mobile/acklay_hue.iff"},
 	lootGroups = {
+	
 		{
 			groups = {
-				{group = "acklay", chance = 10000000}
-			}
-		}
+				{group = "acklay_bones", chance = 10000000},
+			},
+			lootChance = 5000000
+		},
+		
+		{
+			groups = {
+				{group = "acklay", chance = 10000000},
+			},
+			lootChance = 9500000
+		},
 	},
 	weapons = {},
 	conversationTemplate = "",

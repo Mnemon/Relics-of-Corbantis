@@ -27,7 +27,14 @@ peko_peko = Creature:new {
 
 	templates = {"object/mobile/peko_peko.iff"},
 	controlDeviceTemplate = "object/intangible/pet/peko_peko_hue.iff",
-	lootGroups = {},
+	lootGroups = {
+		{
+		groups = {
+ 				{group = "peko_albatross", chance = 10000000}
+ 			},
+			lootChance = 500000
+ 		}
+	},
 	weapons = {},
 	conversationTemplate = "",
 	attacks = {

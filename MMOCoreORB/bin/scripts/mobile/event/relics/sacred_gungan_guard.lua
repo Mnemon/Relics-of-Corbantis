@@ -30,13 +30,46 @@ sacred_gungan_guard = Creature:new {
 	templates = {"object/mobile/gungan_male.iff",
 		"object/mobile/gungan_s02_male.iff"},
 	scaled = 1.25,
-lootGroups = {
+	lootGroups = {
+		{	
+			groups = {
+				{group = "armor_attachments", chance = 5000000},
+				{group = "clothing_attachments", chance = 5000000},
+			},
+			lootChance = 2000000
+		},
+		
 		{
 			groups = {
-				{group = "color_crystals", chance = 3000000},
+				{group = "events_paintings", chance = 10000000},
 			},
-			lootChance = 9000000
-		}
+			lootChance = 2000000
+		},
+		{
+			groups = {
+				{group = "events_jedi", chance = 10000000},
+			},
+			lootChance = 500000
+		},
+				{
+			groups = {
+				{group = "events_schematics", chance = 10000000},
+			},
+			lootChance = 1000000
+		},
+		{
+			groups = {
+				{group = "loot_kit_parts", chance = 10000000},
+			},
+			lootChance = 10000000
+		},
+		{
+			groups = {
+				{group = "gungan_common", chance = 10000000},
+			},
+			lootChance = 10000000
+		},
+	
 	},
 	weapons = {"rebel_weapons_medium"},
 	conversationTemplate = "",

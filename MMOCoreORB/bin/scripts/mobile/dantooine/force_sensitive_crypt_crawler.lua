@@ -42,7 +42,7 @@ force_sensitive_crypt_crawler = Creature:new {
 				{group = "armor_attachments", chance = 5000000},
 				{group = "clothing_attachments", chance = 5000000},
 			},
-			lootChance = 6000000
+			lootChance = 3000000
 		},
 		
 		{
@@ -50,7 +50,7 @@ force_sensitive_crypt_crawler = Creature:new {
 				{group = "holocron_dark", chance = 5000000},
 				{group = "holocron_light", chance = 5000000},
 			},
-			lootChance = 6000000
+			lootChance = 3000000
 		},
 		{
 			groups = {
@@ -58,7 +58,7 @@ force_sensitive_crypt_crawler = Creature:new {
 				{group = "power_crystals", chance = 4000000},
 				{group = "color_crystals", chance = 4000000},
 			},
-			lootChance = 6000000
+			lootChance = 3000000
 		},
 	},
 	weapons = {"mixed_force_weapons"},

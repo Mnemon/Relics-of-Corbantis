@@ -8,7 +8,7 @@ registerScreenPlay("RelicsCityPerksPlay", true)
 
 function RelicsCityPerksPlay:start()
 	if (isZoneEnabled("naboo")) then
-		-- self:spawnMobiles()
+		self:spawnMobiles()
     		self:spawnSceneObjects()
 	end
 end
@@ -25,14 +25,18 @@ function RelicsCityPerksPlay:spawnSceneObjects()
 	spawnSceneObject("tatooine", "object/tangible/event_perk/filler_building_naboo_theed_style_9.iff", -5252, 49, 5905, 0, math.rad(45) ) -- Esandis Outpost perk
 	spawnSceneObject("tatooine", "object/tangible/event_perk/banner_imperial_style_01.iff", 5850.14, 38.04, 4384.39, 0, math.rad(90) ) -- Mortem Solis Outpost perk
 	spawnSceneObject("tatooine", "object/tangible/event_perk/banner_imperial_style_01.iff", 5850.14, 39.14, 4360.25, 0, math.rad(90) ) -- Mortem Solis Outpost perk  39.14 4360.25
-	
+	spawnSceneObject("dantooine", "object/tangible/event_perk/destroyed_atat_theater.iff", -5546, 16, 7214, 0, math.rad(90) ) -- Avalon city perk
+	spawnSceneObject("talus", "object/tangible/event_perk/graveyard.iff",  -5260.6, 50.0, 4575.2, 0, math.rad(90) ) -- Talon city perk graveyard
+	spawnSceneObject("tatooine", "object/tangible/terminal/terminal_bazaar.iff",  -5251.6, 56.3, 6212.7, 0, math.rad(0) ) -- Esandis bazaar terminal
 	
 end
 
---function RelicsCityPerksPlay:spawnMobiles()
+function RelicsCityPerksPlay:spawnMobiles()
 
-	-- spawnMobile("rori", "fringer", 300, -5360.0, 80.1, -2045.0, 122, 0)
+	--Theater Junk Dealers
+	  spawnMobile("lok", "junk_dealer", 60, -284.0, 12.0, -3019.8, -1, 0)
+	  spawnMobile("lok", "informant_npc_lvl_3", 1, -299.0, 12.0, -3019.8, -1, 0)
+	  spawnMobile("tatooine", "junk_dealer", 60, -5244, 54.9, 6212.7, -1, 0)
+	  spawnMobile("tatooine", "informant_npc_lvl_3", 1, -5259.5, 53.0, 6212.7, -1, 0)
 
-	--trainers
-	-- spawnMobile("rori", "trainer_1hsword", 1, -5219, 80.6094, -2164, 0, 0)
---end
+end

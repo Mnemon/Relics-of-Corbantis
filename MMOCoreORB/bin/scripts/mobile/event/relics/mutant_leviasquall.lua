@@ -34,10 +34,43 @@ mutant_leviasquall = Creature:new {
 	lootGroups = {
 		{
 			groups = {
-				{group = "color_crystals", chance = 3000000},
+				{group = "weapons_all", chance = 7500000},
 			},
-			lootChance = 9000000
-		}
+			lootChance = 10000000
+		},
+			
+		{	
+			groups = {
+				{group = "armor_attachments", chance = 5000000},
+				{group = "clothing_attachments", chance = 5000000},
+			},
+			lootChance = 10000000
+		},
+		
+		{
+			groups = {
+				{group = "events_paintings", chance = 10000000},
+			},
+			lootChance = 10000000
+		},
+		{
+			groups = {
+				{group = "events_jedi", chance = 10000000},
+			},
+			lootChance = 10000000
+		},
+		{
+			groups = {
+				{group = "events_special", chance = 10000000},
+			},
+			lootChance = 10000000
+		},
+		{
+			groups = {
+				{group = "events_schematics", chance = 10000000},
+			},
+			lootChance = 10000000
+		},
 	},
 	
 	--{

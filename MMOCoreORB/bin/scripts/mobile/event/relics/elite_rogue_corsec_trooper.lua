@@ -34,6 +34,9 @@ elite_rogue_corsec_trooper = Creature:new {
 		{
 			groups = {
 				{group = "color_crystals", chance = 3000000},
+				{group = "junk", chance = 4000000},
+				{group = "clothing_attachments", chance = 1500000},
+				{group = "armor_attachments", chance = 1500000},
 			},
 			lootChance = 9000000
 		}

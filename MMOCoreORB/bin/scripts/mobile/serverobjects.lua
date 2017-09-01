@@ -1,6 +1,3 @@
--- Custom content
-includeFile("../custom_scripts/mobile/serverobjects.lua")
-
 -- Conversations
 includeFile("conversations.lua")
 
